@@ -12,7 +12,7 @@ RUN corepack enable
 WORKDIR /opt/paperclip
 RUN git clone --depth 1 --branch "${PAPERCLIP_REF}" "${PAPERCLIP_REPO}" .
 RUN pnpm install --frozen-lockfile
-RUN pnpm --filter @paperclipai/server add --no-save hermes-paperclip-adapter@0.1.1
+RUN pnpm --filter @paperclipai/server add hermes-paperclip-adapter@0.1.1
 RUN node - <<'NODE'
 const fs = require('fs');
 const p = '/opt/paperclip/server/src/adapters/registry.ts';
@@ -37,17 +37,6 @@ if (!s.includes('from "hermes-paperclip-adapter/server"')) {
   s = s.replace(importAnchor, importAnchor + hermesImports);
 }
 
-const piAdapterAnchor = `const piLocalAdapter: ServerAdapterModule = {
-  type: "pi_local",
-  execute: piExecute,
-  testEnvironment: piTestEnvironment,
-  sessionCodec: piSessionCodec,
-  sessionManagement: getAdapterSessionManagement("pi_local") ?? undefined,
-  models: [],
-  listModels: listPiModels,
-  supportsLocalAgentJwt: true,
-  agentConfigurationDoc: piAgentConfigurationDoc,
-};\n`;
 const hermesAdapterBlock = `
 const hermesLocalAdapter: ServerAdapterModule = {
   type: "hermes_local",
@@ -61,8 +50,9 @@ const hermesLocalAdapter: ServerAdapterModule = {
 `;
 
 if (!s.includes('const hermesLocalAdapter: ServerAdapterModule = {')) {
-  if (!s.includes(piAdapterAnchor)) throw new Error('registry adapter anchor not found');
-  s = s.replace(piAdapterAnchor, piAdapterAnchor + hermesAdapterBlock);
+  const adaptersMapAnchor = 'const adaptersByType = new Map<string, ServerAdapterModule>(';
+  if (!s.includes(adaptersMapAnchor)) throw new Error('registry adapters map anchor not found');
+  s = s.replace(adaptersMapAnchor, hermesAdapterBlock + '\n' + adaptersMapAnchor);
 }
 
 if (!s.includes('hermesLocalAdapter,')) {
