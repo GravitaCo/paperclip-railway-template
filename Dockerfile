@@ -13,6 +13,7 @@ WORKDIR /opt/paperclip
 RUN git clone --depth 1 --branch "${PAPERCLIP_REF}" "${PAPERCLIP_REPO}" .
 RUN pnpm install --frozen-lockfile
 RUN pnpm --filter @paperclipai/server add hermes-paperclip-adapter@0.1.1
+RUN pnpm --filter @paperclipai/ui add hermes-paperclip-adapter@0.1.1
 RUN node - <<'NODE'
 const fs = require('fs');
 const path = require('path');
