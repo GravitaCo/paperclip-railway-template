@@ -13,6 +13,7 @@ WORKDIR /opt/paperclip
 RUN git clone --depth 1 --branch "${PAPERCLIP_REF}" "${PAPERCLIP_REPO}" .
 RUN pnpm install --frozen-lockfile
 RUN pnpm --filter @paperclipai/ui build
+RUN pnpm --filter @paperclipai/plugin-sdk build
 RUN pnpm --filter @paperclipai/server build
 RUN pnpm --filter paperclipai build
 RUN test -f /opt/paperclip/server/dist/index.js \
