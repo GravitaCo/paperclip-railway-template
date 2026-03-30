@@ -87,4 +87,9 @@ RUN chmod +x /usr/local/bin/docker-entrypoint.sh \
   && mkdir -p /paperclip
 
 EXPOSE 3100
+
+# Create non-root user for Claude Code compatibility
+RUN groupadd -r paperclip && useradd -r -g paperclip -m -s /bin/bash paperclip
+RUN chown -R paperclip:paperclip /paperclip
+USER paperclip
 ENTRYPOINT ["/usr/bin/tini", "--", "/usr/local/bin/docker-entrypoint.sh"]
