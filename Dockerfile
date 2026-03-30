@@ -97,6 +97,5 @@ RUN chown -R paperclip:paperclip /paperclip \
   && chown -R paperclip:paperclip /app \
   && chmod -R a+r /opt/paperclip
 ENV PATH="/usr/local/bin:/paperclip/.local/bin:${PATH}"
-USER paperclip
 
 ENTRYPOINT ["/usr/bin/tini", "--", "/usr/local/bin/docker-entrypoint.sh"]
