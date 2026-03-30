@@ -85,6 +85,17 @@ RUN chmod +x /usr/local/bin/docker-entrypoint.sh \
   && test -f /opt/paperclip/server/dist/index.js \
   && test -f /opt/paperclip/cli/dist/index.js \
   && mkdir -p /paperclip
+# Create non-root user for Claude Code execution only
+RUN groupadd -r paperclip 2>/dev/null || true \
+  && useradd -r -g paperclip -m -d /home/paperclip -s /bin/bash paperclip \
+  && mkdir -p /home/paperclip/.claude /home/paperclip/.local/bin \
+  && cp -a /root/.claude /home/paperclip/.claude 2>/dev/null || true \
+  && chown -R paperclip:paperclip /home/paperclip
+
+# Wrap claude binary so it runs as non-root
+RUN mv /usr/local/bin/claude /usr/local/bin/claude-real 2>/dev/null || true
+COPY claude-wrapper.sh /usr/local/bin/claude
+RUN chmod +x /usr/local/bin/claude
 
 EXPOSE 3100
 ENTRYPOINT ["/usr/bin/tini", "--", "/usr/local/bin/docker-entrypoint.sh"]
